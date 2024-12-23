@@ -1,0 +1,1320 @@
+basePath: /api/v1
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  handler.CopyDirectoryRequest:
+    properties:
+      BucketName:
+        example: bucket-name
+        type: string
+      SourceDir:
+        example: path/to/source/directory
+        type: string
+      TargetDir:
+        example: path/to/target/directory
+        type: string
+    required:
+    - BucketName
+    - SourceDir
+    - TargetDir
+    type: object
+  handler.DeleteDirectoryRequest:
+    properties:
+      BucketName:
+        example: bucket-name
+        type: string
+      DirPath:
+        example: path/to/directory
+        type: string
+    required:
+    - BucketName
+    - DirPath
+    type: object
+  handler.GetBucketRequest:
+    properties:
+      BucketName:
+        example: bucket-name
+        type: string
+    required:
+    - BucketName
+    type: object
+  handler.GetKVKeyValuesRequest:
+    properties:
+      keyName:
+        type: string
+      namespaceId:
+        type: string
+    required:
+    - keyName
+    - namespaceId
+    type: object
+  handler.GetKVKeysRequest:
+    properties:
+      namespaceId:
+        type: string
+    required:
+    - namespaceId
+    type: object
+  handler.ListAliasRequest:
+    properties:
+      ServiceName:
+        type: string
+    required:
+    - ServiceName
+    type: object
+  handler.ListFcRequest:
+    properties:
+      ServiceName:
+        type: string
+    required:
+    - ServiceName
+    type: object
+  handler.ListServiceVersionRequest:
+    properties:
+      ServiceName:
+        type: string
+    required:
+    - ServiceName
+    type: object
+  handler.PublicServiceRequest:
+    properties:
+      description:
+        type: string
+      serviceName:
+        type: string
+    required:
+    - description
+    - serviceName
+    type: object
+  handler.UpdateAliasRequest:
+    properties:
+      aliasName:
+        type: string
+      serviceName:
+        type: string
+      versionId:
+        type: string
+    required:
+    - aliasName
+    - serviceName
+    - versionId
+    type: object
+  handler.UpdateKVKeyValuesRequest:
+    properties:
+      keyName:
+        type: string
+      keyValue:
+        type: string
+      namespaceId:
+        type: string
+    required:
+    - keyName
+    - keyValue
+    - namespaceId
+    type: object
+  model.AliyunAccountInfo:
+    properties:
+      access_key_id:
+        type: string
+      access_key_secret:
+        type: string
+      account_id:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      environment:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      main_account_id:
+        type: string
+      region:
+        type: string
+      site_client:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.CloudflareAccountInfo:
+    properties:
+      access_key_id:
+        type: string
+      access_key_secret:
+        type: string
+      account_id:
+        type: string
+      api_token:
+        type: string
+      country_code:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      environment:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      site_client:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.Response:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      error:
+        type: string
+      message:
+        example: Success
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: OpenAPI service for managing Aliyun FC and Cloudflare R2.
+  title: OpenAPI Service
+  version: "1.0"
+paths:
+  /api/v1/aliyun/accounts:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all Aliyun accounts
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List Aliyun accounts
+      tags:
+      - aliyun-accounts
+    post:
+      consumes:
+      - application/json
+      description: Create a new Aliyun account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account info
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.AliyunAccountInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Aliyun account
+      tags:
+      - aliyun-accounts
+  /api/v1/aliyun/accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an Aliyun account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete Aliyun account
+      tags:
+      - aliyun-accounts
+    put:
+      consumes:
+      - application/json
+      description: Update an existing Aliyun account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Account info
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.AliyunAccountInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update Aliyun account
+      tags:
+      - aliyun-accounts
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User login
+      tags:
+      - auth
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidate user's current session
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - auth
+  /api/v1/cloudflare/{accountId}/kv/namespaces:
+    get:
+      consumes:
+      - application/json
+      description: Get list of KV namespaces for a Cloudflare account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account ID
+        in: path
+        name: AccountId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request headers
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get KV namespaces
+      tags:
+      - cloudflare-kv
+  /api/v1/cloudflare/accounts:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all Cloudflare accounts
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List Cloudflare accounts
+      tags:
+      - cloudflare-accounts
+    post:
+      consumes:
+      - application/json
+      description: Create a new Cloudflare account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account info
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.CloudflareAccountInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Cloudflare account
+      tags:
+      - cloudflare-accounts
+  /api/v1/cloudflare/accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Cloudflare account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete Cloudflare account
+      tags:
+      - cloudflare-accounts
+    put:
+      consumes:
+      - application/json
+      description: Update an existing Cloudflare account
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Account info
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.CloudflareAccountInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update Cloudflare account
+      tags:
+      - cloudflare-accounts
+  /api/v1/cloudflare/bucketinfo:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a directory in Cloudflare R2 bucket
+      parameters:
+      - in: header
+        name: authorization
+        type: string
+      - in: header
+        name: countryCode
+        type: string
+      - in: header
+        name: env
+        type: string
+      - description: Delete directory request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.DeleteDirectoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete directory
+      tags:
+      - cloudflare
+    post:
+      consumes:
+      - application/json
+      description: Get information about a Cloudflare R2 bucket
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: Bucket name
+        in: body
+        name: BucketName
+        required: true
+        schema:
+          $ref: '#/definitions/handler.GetBucketRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request headers
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get bucket info
+      tags:
+      - cloudflare
+  /api/v1/cloudflare/bucketinfo/copy:
+    post:
+      consumes:
+      - application/json
+      description: Copy a directory in Cloudflare R2 bucket
+      parameters:
+      - in: header
+        name: authorization
+        type: string
+      - in: header
+        name: countryCode
+        type: string
+      - in: header
+        name: env
+        type: string
+      - description: Copy directory request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CopyDirectoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Copy directory
+      tags:
+      - cloudflare
+  /api/v1/cloudflare/kv/namespaces/keys:
+    post:
+      consumes:
+      - application/json
+      description: Get list of keys in a Cloudflare KV namespace
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: Get KV keys request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.GetKVKeysRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Get KV namespace keys
+      tags:
+      - cloudflare-kv
+  /api/v1/cloudflare/kv/namespaces/keys/values:
+    post:
+      consumes:
+      - application/json
+      description: Get values for keys in a Cloudflare KV namespace
+      parameters:
+      - in: header
+        name: authorization
+        type: string
+      - in: header
+        name: countryCode
+        type: string
+      - in: header
+        name: env
+        type: string
+      - description: Get KV key values request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.GetKVKeyValuesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Get KV namespace key values
+      tags:
+      - cloudflare-kv
+    put:
+      consumes:
+      - application/json
+      description: Update values for keys in a Cloudflare KV namespace
+      parameters:
+      - in: header
+        name: authorization
+        type: string
+      - in: header
+        name: countryCode
+        type: string
+      - in: header
+        name: env
+        type: string
+      - description: Update KV key values request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateKVKeyValuesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Update KV namespace key values
+      tags:
+      - cloudflare-kv
+  /api/v1/cloudflare/pages/projects:
+    get:
+      consumes:
+      - application/json
+      description: Get list of Cloudflare Pages projects
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Get Pages projects
+      tags:
+      - cloudflare-pages
+  /api/v1/services:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all Function Compute services
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request headers
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List FC services
+      tags:
+      - services
+  /api/v1/services/aliases:
+    post:
+      consumes:
+      - application/json
+      description: Get list of aliases for a specific service
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: List alias request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ListAliasRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: List aliases
+      tags:
+      - aliases
+    put:
+      consumes:
+      - application/json
+      description: Update service alias to point to a specific version
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: Update alias request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateAliasRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Update alias
+      tags:
+      - aliases
+  /api/v1/services/functions:
+    post:
+      consumes:
+      - application/json
+      description: Get list of functions for a specific service
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: List fc request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ListFcRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List functions
+      tags:
+      - functions
+  /api/v1/services/publish:
+    post:
+      consumes:
+      - application/json
+      description: Publish a service version
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: Publish service request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PublicServiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Publish service
+      tags:
+      - services
+  /api/v1/services/versions:
+    post:
+      consumes:
+      - application/json
+      description: Get list of versions for a specific service
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Environment (e.g. pre, prod)
+        in: header
+        name: Env
+        required: true
+        type: string
+      - description: Country code (e.g. US, CN)
+        in: header
+        name: Country-Code
+        required: true
+        type: string
+      - description: List service version request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ListServiceVersionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Invalid request headers or body
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List service versions
+      tags:
+      - services
+  /api/v1/system/zones:
+    get:
+      consumes:
+      - application/json
+      description: Validate token and get user information along with available zones
+      parameters:
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response with userid, username, environment, and country_code
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized or invalid token
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get zone information and validate token
+      tags:
+      - system
+  /healthcheck:
+    get:
+      description: Returns OK if the service is running
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Health check endpoint
+      tags:
+      - system
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
