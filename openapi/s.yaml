@@ -1,0 +1,13 @@
+edition: 2.0.0
+name: openapi
+access: default
+services:
+  fc-deploy:
+    component: fc
+    props:
+      region: us-east-1 # 函数所在的 region
+      service:
+        name: openapi-dev # 服务名称
+      function:
+        name: openapi # 函数名称
+        codeUri: ./target
