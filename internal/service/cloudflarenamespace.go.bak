@@ -1,0 +1,63 @@
+package service
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"openapi/internal/logger"
+
+	"openapi/internal/constants"
+)
+
+// GetKVNamespaces 获取 KV 命名空间列表
+func GetKVNamespaces(countryCode, env string) (*constants.CFResponse[constants.KVNamespace], error) {
+	// 获取默认客户端
+	client := GetDefaultClient()
+
+	// 加载配置
+	if err := client.LoadConfig(env, countryCode); err != nil {
+		return nil, fmt.Errorf("failed to load config: %v", err)
+	}
+
+	// 获取配置信息
+	config := client.GetConfig()
+	if config == nil || config.CloudflareConfig == nil {
+		return nil, fmt.Errorf("cloudflare config not loaded")
+	}
+
+	// 构建请求 URL
+	url := fmt.Sprintf("%s/%s/storage/kv/namespaces",
+		constants.CFBaseURL,
+		config.CloudflareConfig.AccountID)
+
+	// 创建请求
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %v", err)
+	}
+
+	logger.Info("Getting KV namespaces for account: %s", config.CloudflareConfig.AccountID)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var cfResp constants.CFResponse[constants.KVNamespace]
+	if err := json.Unmarshal(body, &cfResp); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %v", err)
+	}
+
+	return &cfResp, nil
+}

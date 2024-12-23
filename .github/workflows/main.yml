@@ -1,0 +1,52 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .github/workflows/**
+      - README.md
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to run this workflow on"
+        required: true
+        default: "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.2'
+
+    - name: Build
+      run: |
+        go mod tidy
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-extldflags "-static"' -o target/main main.go
+        ls -ltr
+        mkdir target/configs
+        cp -r configs/config.json.example target/configs/config.json
+        sed -ri "s/(.*)\"host\": (.*)/\1\"host\": \"${{ vars.POLARDB_HOST }}\",/" target/configs/config.json
+        sed -ri "s/(.*)\"user\": (.*)/\1\"user\": \"${{ vars.POLARDB_USER }}\",/" target/configs/config.json
+        sed -ri "s/(.*)\"port\": (.*)/\1\"port\": ${{ vars.POLARDB_PORT }},/" target/configs/config.json
+        sed -ri "s/(.*)\"password\": (.*)/\1\"password\": \"${{ secrets.POLARDB_PWD }}\",/" target/configs/config.json
+        sed -ri "s/(.*)\"database\": (.*)/\1\"database\": \"${{ vars.POLARDB_DB }}\"/" target/configs/config.json
+        cat target/configs/config.json
+
+    - name: set nodejs
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    # - run: npm install
+    - run: npm install -g @serverless-devs/s
+    - run: s config add --AccountID ${{ secrets.ACCOUNT_ID }} --AccessKeyID ${{ secrets.ACCESS_KEY_ID }} --AccessKeySecret ${{ secrets.ACCESS_KEY_SECRET }} -a default
+    - run: s deploy function --type code --use-local
